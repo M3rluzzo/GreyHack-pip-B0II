@@ -2,10 +2,10 @@
 #import Gson from "GSON/gson.src"
 #import GsonObject from "GSON/gson_object.src"
 #import GsonUtil from "GSON/gson_util.src"
-#import PluginRegistry from "core/plugin_registry/plugin_registry.src"
 #import Configs from "core/configs.src"
 
 #import Cli from "core/cli/cli.src"
+#import PluginRegistry from "core/plugin_registry/plugin_registry.src"
 
 // pip-B0II
 // =============================================================================
@@ -16,5 +16,4 @@ Pip = GsonObject.New({
 	"description": "pip-B0II Toolkit - What's in that Vault?"
 })
 
-Configs.Init
 Cli.Main
