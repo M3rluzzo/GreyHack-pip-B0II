@@ -1,0 +1,76 @@
+
+HelpPlugin.ShowHelp = function(parsed, cli)
+    HelpViewer.ShowBanner("header")
+    
+    helpContent = [
+        "AVAILABLE COMMANDS:",
+        ""
+    ]
+    
+    for commandName in PluginRegistry.commands.indexes
+        cmdData = PluginRegistry.commands[commandName]
+        helpContent.push(commandName + " " * (20 - commandName.len) + "- " + cmdData.description)
+        
+        if cmdData.subcommands then
+            for subName in cmdData.subcommands.indexes
+                locals.subcmd = cmdData.subcommands[subName]
+                locals.subLine = "  " + commandName + " " + subName
+                
+                if subcmd.hasIndex("flags") and subcmd.flags then
+                    subLine = subLine + " [" + subcmd.flags.join("] [") + "]"
+                end if
+                if subcmd.hasIndex("params") and subcmd.params then
+                    for param in subcmd.params
+                        subLine = subLine + " <" + param + ">"
+                    end for
+                end if
+                
+                subLine = subLine + " " * (35 - subLine.len) + "- " + subcmd.description
+                helpContent.push(subLine)
+            end for
+            helpContent.push("")
+        end if
+    end for
+    
+    helpContent.push("GLOBAL FLAGS:")
+    helpContent.push("--debug             - Enable debug output")
+    helpContent.push("--verbose           - Enable verbose logging")  
+    helpContent.push("--quiet             - Suppress non-essential output")
+    helpContent.push("")
+    helpContent.push("EXAMPLES:")
+    helpContent.push("pip_boi --debug config show --all")
+    helpContent.push("pip_boi config set network.timeout 60")
+    helpContent.push("pip_boi help command config")
+    
+    Cli.ShowSection("SYSTEM HELP", helpContent)
+	HelpViewer.ShowBanner("footer")
+end function
+
+HelpPlugin.ShowCommandHelp = function(parsed, cli)
+    locals.commandName = parsed.params[0]
+    
+    if not cli._commands.hasIndex(commandName) then
+        ASCII_RENDERER.ShowError("Unknown command: " + commandName)
+        return
+    end if
+    
+    locals.cmdData = cli._commands[commandName]
+    
+    ASCII_RENDERER.ShowBanner()
+    
+    locals.helpContent = [
+        "COMMAND: " + commandName.upper,
+        "DESCRIPTION: " + cmdData.description,
+        ""
+    ]
+    
+    if cmdData.subcommands then
+        helpContent.push("SUBCOMMANDS:")
+        for subName in cmdData.subcommands.indexes
+            locals.subcmd = cmdData.subcommands[subName]
+            helpContent.push("  " + subName + " - " + subcmd.description)
+        end for
+    end if
+    
+    ASCII_RENDERER.ShowSection("COMMAND HELP", helpContent)
+end function

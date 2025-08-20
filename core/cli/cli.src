@@ -1,0 +1,6 @@
+Cli = GsonObject.New
+
+#include "model.src"
+#include "controller.src"
+
+module.exports = Cli

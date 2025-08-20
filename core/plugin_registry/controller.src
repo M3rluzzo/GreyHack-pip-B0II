@@ -1,0 +1,28 @@
+PluginRegistry.Validate = function(_plugin)
+    // check for required fields
+    if not _plugin.hasIndex("name") then return Logger.Log("PLUGIN_REGISTRY", "[ERROR] Plugin " + _plugin + " missing required 'name' field")
+    if not _plugin.hasIndex("commands") then return Logger.Log("PLUGIN_REGISTRY", "[ERROR] Plugin " + _plugin.name + " missing required 'commands' field")
+
+	// check for duplicates
+    for existingPlugin in self.plugins.values
+        if existingPlugin.name == _plugin.name then return Logger.Log("PLUGIN_REGISTRY", "[WARNING] Plugin " + _plugin.name + " already registered, skipping")
+    end for
+
+    return true
+end function
+
+PluginRegistry.RegisterPlugin = function(_plugin)
+	if not self.Validate(_plugin) then return false
+	return self.LoadPlugin(_plugin)
+end function
+
+
+PluginRegistry.LoadPlugin = function(_plugin)
+	self.plugins[_plugin.name] = _plugin
+	Logger.Debug("REGISTRY", "Registering commands for plugin: " + _plugin.name + " with " + _plugin.commands.indexes.len + " commands.")
+	for commandName in _plugin.commands.indexes
+		Logger.Debug("REGISTRY", "Registering command: " + commandName + " from plugin: " + _plugin.name)
+		self.commands[commandName] = _plugin.commands[commandName]
+	end for
+	return true
+end function

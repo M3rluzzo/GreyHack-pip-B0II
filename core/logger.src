@@ -1,0 +1,21 @@
+// =============================================================================
+// DEBUGGER PLUGIN - Lo
+// =============================================================================
+
+Logger = {}
+Logger.debug = true
+
+Logger.Debug = function(_tag, _message)
+    if self.debug then
+        print("[DEBUG] [" + _tag + "] " + _message)
+    end if
+end function
+
+Logger.Log = function(_message, _tag = null)
+    if _tag then
+        _message = "[" + _tag + "] " + _message
+    end if
+    print(_message)
+end function
+
+module.exports = Logger

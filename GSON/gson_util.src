@@ -1,0 +1,223 @@
+#import GsonObject from "gson_object"
+
+// GSON Utility
+GsonUtil = {}
+
+// recursive whitespace stripper with double-escape handling
+GsonUtil._StripWhitespace = function(_s)
+    if _s == null then return ""
+
+    result = ""
+    inQuote = false
+    i = 0
+
+    while i < _s.len
+        currChar = _s[i]
+
+        if currChar == "\" and i + 2 < _s.len and _s[i + 1] == "\" and _s[i + 2] == "'" then
+            // handle \\' as escaped quote
+            result = result + currChar + _s[i + 1] + _s[i + 2]
+            i = i + 3
+        else if currChar == "\" and i + 1 < _s.len then
+            nextChar = _s[i + 1]
+            result = result + currChar + nextChar
+            i = i + 2
+        else if currChar == "'" then
+            result = result + currChar
+            inQuote = (inQuote == false)
+            i = i + 1
+        else if inQuote then
+            result = result + currChar
+            i = i + 1
+        else if currChar != " " and currChar != "	" and currChar != "" and currChar != char(10) then
+            result = result + currChar
+            i = i + 1
+        else
+            i = i + 1
+        end if
+    end while
+
+    return result
+end function
+
+// recursive parser - handles any valid structure
+GsonUtil._Parse = function(_s)
+    sClean = _s.trim
+    if sClean.len == 0 then return null
+
+    firstChar = sClean[0]
+    if firstChar == "{" then return GsonObject.New(self._ParseObject(sClean))
+    if firstChar == "[" then return self._ParseArray(sClean)
+    if firstChar == "'" then 
+        if sClean.len >= 2 and sClean[sClean.len-1] == "'" then
+            return sClean[1:sClean.len-1]
+        end if
+        return sClean
+    end if
+
+    if sClean == "null" then return null
+    if sClean == "true" then return 1
+    if sClean == "false" then return 0
+    return val(sClean)
+end function
+
+// recursive object parser
+GsonUtil._ParseObject = function(_s)
+    content = _s[1:_s.len-1].trim
+    if content.len == 0 then return {}
+
+    result = {} // GsonObject.New
+    pairs = self._CommaSplit(content)
+
+    for _pair_str in pairs
+        colon_pos = self._FindStructureColon(_pair_str)
+        if colon_pos != null then
+            key_part = _pair_str[0:colon_pos].trim
+            if key_part.len >= 2 and key_part[0] == "'" and key_part[key_part.len-1] == "'" then
+                key = key_part[1:key_part.len-1]
+            else
+                key = key_part
+            end if
+			value = self._Parse(_pair_str[colon_pos+1:].trim)
+			intKey = val(key)
+			if intKey > 0 or str(intKey) == key then key = intKey
+            result[key] = self._DeepUnescape(value)
+        end if
+    end for
+    return result
+end function
+
+// recursive array parser
+GsonUtil._ParseArray = function(_s)
+    content = _s[1:_s.len-1].trim
+    if content.len == 0 then return []
+
+    result = []
+    items = self._CommaSplit(content)
+	
+    for _item_str in items
+        result.push(self._Parse(_item_str.trim))
+    end for
+    return result
+end function
+
+// comma splitter - respects nesting and quotes
+GsonUtil._CommaSplit = function(_s)
+    parts = []
+    current = ""
+    in_quote = false
+    nesting = 0
+    escape_next = false
+
+    for i in range(0, _s.len - 1)
+        _char = _s[i]
+
+        if escape_next then
+            current = current + _char
+            escape_next = false
+        else if _char == "\" then
+            current = current + _char
+            escape_next = true
+        else if _char == "'" then
+            current = current + _char
+            in_quote = (in_quote == false)
+        else if in_quote == false then
+            if _char == "{" or _char == "[" then
+                nesting = nesting + 1
+                current = current + _char
+            else if _char == "}" or _char == "]" then
+                nesting = nesting - 1
+                current = current + _char
+            else if _char == "," and nesting == 0 then
+                if current.len > 0 then parts.push(current)
+                current = ""
+            else
+                current = current + _char
+            end if
+        else
+            current = current + _char
+        end if
+    end for
+
+    if current.len > 0 then parts.push(current)
+    return parts
+end function
+
+// colon finder for object parsing
+GsonUtil._FindStructureColon = function(_s)
+    in_quote = false
+    escape_next = false
+
+    for i in range(0, _s.len - 1)
+        _char = _s[i]
+
+        if escape_next then
+            escape_next = false
+        else if _char == "\" then
+            escape_next = true
+        else if _char == "'" then
+            in_quote = (in_quote == false)
+        else if in_quote == false and _char == ":" then
+            return i
+        end if
+    end for
+    
+    return null
+end function
+
+// recursive deep unescaper - single tree traversal  
+GsonUtil._DeepUnescape = function(_element)
+    elementType = TypeOf(_element)
+    if elementType == "string" then
+        if _element.len == 0 then return ""
+
+        result = ""
+        i = 0
+        while i < _element.len
+            if _element[i] == "\" and i + 1 < _element.len then
+                nextChar = _element[i + 1]
+                if nextChar == "\" then
+                    if i + 2 < _element.len and _element[i + 2] == "'" then
+                        result = result + "'"
+                        i = i + 3
+                    else
+                        result = result + "\"
+                        i = i + 2
+                    end if
+                else if nextChar == "'" then
+                    result = result + "'"
+                    i = i + 2
+                else
+                    result = result + nextChar
+                    i = i + 2
+                end if
+            else
+                result = result + _element[i]
+                i = i + 1
+            end if
+        end while
+        return result
+
+    else if elementType == "list" then
+        cleaned = []
+        for item in _element
+            cleaned.push(self._DeepUnescape(item))
+        end for
+        return cleaned
+
+    else if elementType == "map" or elementType == "gsonobject" then
+		// maps should not exists at this point, but just to be sure
+        cleaned = GsonObject.New
+        for key in _element.indexes
+            clean_key = self._DeepUnescape(key)
+            clean_value = self._DeepUnescape(_element[key])
+            cleaned[clean_key] = clean_value
+        end for
+        return cleaned
+
+    else
+        return _element
+    end if
+end function
+
+module.exports = GsonUtil

@@ -1,0 +1,20 @@
+#import Logger from "core/logger.src"
+#import Gson from "GSON/gson.src"
+#import GsonObject from "GSON/gson_object.src"
+#import GsonUtil from "GSON/gson_util.src"
+#import PluginRegistry from "core/plugin_registry/plugin_registry.src"
+#import Configs from "core/configs.src"
+
+#import Cli from "core/cli/cli.src"
+
+// pip-B0II
+// =============================================================================
+Pip = GsonObject.New({
+	"framework": "PIP-B0II",
+	"version": "1.0",
+	"author": "ThreeDog",
+	"description": "pip-B0II Toolkit - What's in that Vault?"
+})
+
+Configs.Init
+Cli.Main

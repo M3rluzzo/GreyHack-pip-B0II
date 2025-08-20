@@ -1,0 +1,48 @@
+// main cli loop
+Cli.Main = function()
+    while not self.exit self.ProcessCommand(user_input("pip-b0ii> ").trim)
+end function
+
+Cli.ProcessCommand = function(_input)
+	self.commandHistory.push(_input)
+
+	parts = _input.split(" ")
+    command = parts[0].lower
+    args = parts[1:]
+	
+	if command == "exit" or command == "quit" then
+		self.exit = true
+		return
+	end if
+	if command == "clear" then return clear_screen()
+
+    commandIndexes = PluginRegistry.commands.indexes
+	Logger.Debug "COMMAND", "Processing command: " + command + " with args: " + args.join(", ")
+	Logger.Debug "COMMANDS", "Available commands: " + commandIndexes.join(", ")
+	if commandIndexes.indexOf(command) != null then
+		Logger.Debug "COMMAND", "Executing command: " + command + " with args: " + args.join(", ")
+		Logger.Debug "COMMAND", typeof(PluginRegistry.commands[command]["handler"])
+		return PluginRegistry.commands[command]["handler"](args, self)
+	end if
+	Logger.Log "Unknown command: " + command
+	Logger.Log "Type 'help' for available commands"
+end function
+
+Cli.ShowSection = function(_title, _content)
+    boxLines = self.CreateBox(_title, _content, 87)
+    for line in boxLines
+        Logger.Log line
+    end for
+end function
+
+Cli.CreateBox = function(_title, _content, _width)
+    boxLines = []
+    boxLines.push("┌" + "─" * _width+"┐")
+    boxLines.push("│ " + _title.upper + " " * (_width - _title.len - 1) + "│")
+	boxLines.push("├"+ "─" * _width +"┤")
+
+	for line in _content boxLines.push("│ " + line + " " * (_width - line.len - 1) + "│")
+	boxLines.push("└"+ "─" * _width +"┘")
+
+    return boxLines
+end function

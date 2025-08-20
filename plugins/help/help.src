@@ -1,0 +1,16 @@
+// help plugin main
+// =============================================================================
+#import PluginRegistry from "../../core/plugin_registry/plugin_registry.src"
+#import Cli from "../../core/cli/cli.src"
+
+HelpPlugin = {}
+
+#include "view.src"
+#include "controller.src"	// unlike the other, this controller must be before model
+#include "model.src"		// because the model needs to refer to controller's function
+
+// auto register
+// =============================================================================
+PluginRegistry.RegisterPlugin(HelpPlugin)
+
+module.exports = HelpPlugin

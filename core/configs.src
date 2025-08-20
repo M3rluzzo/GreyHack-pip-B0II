@@ -1,0 +1,8 @@
+
+Configs = GsonObject.New({
+	"baseDir": ".pip_b0ii",
+	"cfgFile": "cfg.gson",
+	"data": GsonObject.New
+})
+
+module.exports = Configs

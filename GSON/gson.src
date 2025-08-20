@@ -1,0 +1,76 @@
+// =============================================================================
+// PIP-B0II Framework - Gson (GreyScript Object Notation) Module
+// Enhanced JSON with GreyScript-specific features and single quotes
+// =============================================================================
+#import GsonObject from "gson_object"
+#import GsonUtil from "gson_util"
+Gson = {}
+
+// main api - parse, stringify, file operations
+// =============================================================================
+Gson.Parse = function(_GsonString)
+    if _GsonString == null or _GsonString.len == 0 then return null
+    cleanString = GsonUtil._StripWhitespace(_GsonString)
+    if cleanString.len == 0 then return null
+	value = GsonUtil._Parse(cleanString)
+    return GsonUtil._DeepUnescape(value)
+end function
+
+// stringify any data to Gson
+Gson.Stringify = function(_data, _indent = 0)
+	result = self._Stringify(_data, _indent, self._GeneratePadding(_indent))
+	if _indent == 0 then
+		return result.replace(char(10), "").replace("    ", "")
+	end if
+	return result
+end function
+
+Gson._Stringify = function(_obj, _indent, _spaces)
+    if _obj == null then return "null"
+
+    obj_type = TypeOf(_obj)
+	
+    if obj_type == "number" then return "" + _obj
+    if obj_type == "string" then return "'" + _obj.replace("'", "\'") + "'"
+    if obj_type == "list" then return self._StringifyContainer(_obj, _indent, _spaces, true, "[", "]")
+	if obj_type == "Gsonobject" then return self._StringifyContainer(_obj, _indent, _spaces, false, "{", "}")
+	exit("Something went very wrong..")
+    return "nope"
+end function
+
+Gson._StringifyContainer = function(_container, _indent, _spaces, _isArray, _openChar, _closeChar)
+    if (_isArray and _container.len == 0) or (not _isArray and _container.indexes.len == 0) then
+        return _openChar + _closeChar
+    end if
+
+    nextIndent = _indent + 1
+    nextSpaces = self._GeneratePadding(nextIndent)
+    newline = char(10)
+
+    parts = []
+    if _isArray then
+        for item in _container
+            parts.push(nextSpaces + self._Stringify(item, nextIndent, nextSpaces))
+        end for
+    else
+        for key in _container.indexes
+            value_str = self._Stringify(_container[key], nextIndent, nextSpaces)
+            parts.push(nextSpaces + "'" + key + "': " + value_str)
+        end for
+    end if
+
+    return _openChar + newline + parts.join("," + newline) + newline + _spaces + _closeChar
+end function
+
+// padding generation - string multiplication
+Gson._GeneratePadding = function(_indent)
+    if _indent == 0 then return ""
+    return ("    " * _indent)
+end function
+
+// file operations
+// =============================================================================
+// To be Remimplemented
+
+
+module.exports = Gson

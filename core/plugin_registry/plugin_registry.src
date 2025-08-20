@@ -1,0 +1,12 @@
+// plugins registry to manage all plugins
+// =============================================================================
+#include "../plugin_list.src"
+
+PluginRegistry = GsonObject.New
+PluginRegistry.plugins = GsonObject.New
+PluginRegistry.commands = GsonObject.New
+
+#include "controller.src"
+
+
+module.exports = PluginRegistry

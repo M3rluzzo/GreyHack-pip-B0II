@@ -1,0 +1,19 @@
+HelpPlugin.name = "Help"
+HelpPlugin.description = "PIP-B0ii Help"
+HelpPlugin.commands = GsonObject.New ({
+    "help": GsonObject.New ({
+		"handler": @HelpPlugin.ShowHelp,
+        "description": "Show help (this panel)",
+        "subcommands": GsonObject.New ({
+            "with": GsonObject.New ({
+                "description": "Show help for specific command",
+                "params": ["command_name"],
+                "handler": @HelpPlugin.ShowCommandHelp
+            })
+        }),
+		"helpInfo": GsonObject.New ({
+			"description": "Do you want an help on help command? Help is a lie. Give me a cake.",
+			"params": ["No params required"],
+		})
+    })
+})
