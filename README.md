@@ -1,3 +1,5 @@
+<img width="474" height="143" alt="image" src="https://github.com/user-attachments/assets/22b6d1db-a5de-457c-a9b5-3592ee34f49f" />
+
 # PIP-B0II - Freedom Fighter's Toolkit
 
 *"Hey there, children! ThreeDog here, and you're tuned into PIP-B0II - bringing you the REAL tools to fight the corporate wasteland!"*
