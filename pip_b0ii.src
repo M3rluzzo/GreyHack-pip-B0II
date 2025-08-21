@@ -3,8 +3,9 @@
 #import GsonObject from "GSON/gson_object.src"
 #import GsonUtil from "GSON/gson_util.src"
 #import Configs from "core/configs.src"
-
 #import Cli from "core/cli/cli.src"
+
+#include "core/plugin_list.src"
 #import PluginRegistry from "core/plugin_registry/plugin_registry.src"
 
 // pip-B0II
