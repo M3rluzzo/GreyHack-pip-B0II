@@ -7,6 +7,4 @@ PluginRegistry.commands = GsonObject.New
 
 #include "controller.src"
 
-#include "../plugin_list.src"
-
 module.exports = PluginRegistry
