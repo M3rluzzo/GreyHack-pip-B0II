@@ -46,7 +46,7 @@ index_func = @map.indexes
 values_func = @map.values
 typeof_func = @typeof
 
-typeof = function(_obj)
+locals["typeof"] = function(_obj)
 	result = typeof_func(_obj)
 	if result == "map" and _obj.hasIndex("__isa") and _obj.__isa == GsonObject then
 		return "gsonobject"

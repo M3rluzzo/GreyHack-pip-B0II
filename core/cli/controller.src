@@ -22,7 +22,8 @@ Cli.ProcessCommand = function(_input)
 	if commandIndexes.indexOf(command) != null then
 		Logger.Debug "COMMAND", "Executing command: " + command + " with args: " + args.join(", ")
 		Logger.Debug "COMMAND", typeof(PluginRegistry.commands[command]["handler"])
-		return PluginRegistry.commands[command]["handler"](args, self)
+		handler = PluginRegistry.commands[command]["handler"]
+		return handler(args, self)
 	end if
 	Logger.Log "Unknown command: " + command
 	Logger.Log "Type 'help' for available commands"
